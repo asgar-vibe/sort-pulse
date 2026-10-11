@@ -196,86 +196,109 @@
       gap: 1.25rem;
     }
 
-    /* Algorithm Picker Tabs */
-    .algo-tabs-container {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      overflow-x: auto;
-      padding-bottom: 0.25rem;
-      scrollbar-width: thin;
-    }
-
-    .algo-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.7rem 1.25rem;
-      border-radius: var(--radius-md);
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.25s ease;
-      position: relative;
-      outline: none;
-    }
-
-    .algo-btn:hover {
-      background: var(--bg-surface-elevated);
-      color: var(--text-main);
-      border-color: rgba(255, 255, 255, 0.15);
-      transform: translateY(-1px);
-    }
-
-    .algo-btn.active {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25));
-      border-color: #818cf8;
-      color: #ffffff;
-      box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
-    }
-
-    .algo-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 15%;
-      right: 15%;
-      height: 2px;
-      background: #818cf8;
-      border-radius: 999px;
-      box-shadow: 0 0 10px #818cf8;
-    }
-
-    .algo-complexity-chip {
-      font-size: 0.72rem;
-      font-family: 'JetBrains Mono', monospace;
-      padding: 2px 6px;
-      border-radius: 6px;
-      background: rgba(0, 0, 0, 0.35);
-      color: #94a3b8;
-    }
-
-    .algo-btn.active .algo-complexity-chip {
-      background: rgba(129, 140, 248, 0.35);
-      color: #e0e7ff;
-    }
-
-    /* Algorithm Info Card */
+    /* Algorithm Info Card with Carousel Navigation */
     .algo-info-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-lg);
-      padding: 1.15rem 1.5rem;
+      padding: 1.15rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.1rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .algo-nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+      z-index: 10;
+    }
+
+    .algo-nav-btn:hover:not(:disabled) {
+      background: rgba(129, 140, 248, 0.22);
+      border-color: #818cf8;
+      color: #ffffff;
+      transform: scale(1.12);
+      box-shadow: 0 0 16px rgba(129, 140, 248, 0.45);
+    }
+
+    .algo-nav-btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    .algo-nav-btn:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .algo-nav-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    .algo-content-wrapper {
+      flex: 1;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
       gap: 1.25rem;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      min-width: 0;
+      position: relative;
+    }
+
+    @keyframes slideInFromRight {
+      from { transform: translateX(40px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slideInFromLeft {
+      from { transform: translateX(-40px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .slide-in-right {
+      animation: slideInFromRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .slide-in-left {
+      animation: slideInFromLeft 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .algo-complexity-chip {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(129, 140, 248, 0.25);
+      color: #c7d2fe;
+      border: 1px solid rgba(129, 140, 248, 0.4);
+    }
+
+    .algo-counter-badge {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-dim);
+      border: 1px solid var(--border-subtle);
     }
 
     .algo-desc {
@@ -1111,60 +1134,51 @@
 
   <!-- Main Content Layout -->
   <main>
-    <!-- Algorithm Selection Tabs -->
-    <div class="algo-tabs-container" id="algoTabs">
-      <button class="algo-btn active" data-algo="bubble">
-        <span>Bubble Sort</span>
-        <span class="algo-complexity-chip">O(n²)</span>
-      </button>
-      <button class="algo-btn" data-algo="selection">
-        <span>Selection Sort</span>
-        <span class="algo-complexity-chip">O(n²)</span>
-      </button>
-      <button class="algo-btn" data-algo="insertion">
-        <span>Insertion Sort</span>
-        <span class="algo-complexity-chip">O(n²)</span>
-      </button>
-      <button class="algo-btn" data-algo="quick">
-        <span>Quick Sort</span>
-        <span class="algo-complexity-chip">O(n log n)</span>
-      </button>
-      <button class="algo-btn" data-algo="merge">
-        <span>Merge Sort</span>
-        <span class="algo-complexity-chip">O(n log n)</span>
-      </button>
-    </div>
-
-    <!-- Algorithm Information Card -->
+    <!-- Algorithm Information Card with Left / Right Navigation -->
     <div class="algo-info-card">
-      <div class="algo-desc">
-        <div class="algo-desc-header">
-          <h2 class="algo-name-title" id="algoName">Bubble Sort</h2>
-          <span class="stability-tag stability-stable" id="algoStability">Stable</span>
+      <!-- Left Carousel Button (Far Left) -->
+      <button class="algo-nav-btn" id="btnPrevAlgo" title="Previous Algorithm (←)" aria-label="Previous Algorithm">
+        <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+      </button>
+
+      <!-- Center Animated Algorithm Content -->
+      <div class="algo-content-wrapper" id="algoContentWrapper">
+        <div class="algo-desc">
+          <div class="algo-desc-header">
+            <h2 class="algo-name-title" id="algoName">Bubble Sort</h2>
+            <span class="algo-complexity-chip" id="algoComplexityChip">O(n²)</span>
+            <span class="stability-tag stability-stable" id="algoStability">Stable</span>
+            <span class="algo-counter-badge" id="algoCounterBadge">1 / 8</span>
+          </div>
+          <p id="algoDescription">
+            Repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order.
+            Larger elements bubble up to the end of the array.
+          </p>
         </div>
-        <p id="algoDescription">
-          Repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order.
-          Larger elements bubble up to the end of the array.
-        </p>
+        <div class="algo-complexities">
+          <div class="complexity-box">
+            <span class="label">Best Time</span>
+            <span class="value" id="compBest">Ω(n)</span>
+          </div>
+          <div class="complexity-box">
+            <span class="label">Average Time</span>
+            <span class="value" id="compAvg">Θ(n²)</span>
+          </div>
+          <div class="complexity-box">
+            <span class="label">Worst Time</span>
+            <span class="value" id="compWorst">O(n²)</span>
+          </div>
+          <div class="complexity-box">
+            <span class="label">Space</span>
+            <span class="value" id="compSpace">O(1)</span>
+          </div>
+        </div>
       </div>
-      <div class="algo-complexities">
-        <div class="complexity-box">
-          <span class="label">Best Time</span>
-          <span class="value" id="compBest">Ω(n)</span>
-        </div>
-        <div class="complexity-box">
-          <span class="label">Average Time</span>
-          <span class="value" id="compAvg">Θ(n²)</span>
-        </div>
-        <div class="complexity-box">
-          <span class="label">Worst Time</span>
-          <span class="value" id="compWorst">O(n²)</span>
-        </div>
-        <div class="complexity-box">
-          <span class="label">Space</span>
-          <span class="value" id="compSpace">O(1)</span>
-        </div>
-      </div>
+
+      <!-- Right Carousel Button (Far Right) -->
+      <button class="algo-nav-btn" id="btnNextAlgo" title="Next Algorithm (→)" aria-label="Next Algorithm">
+        <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+      </button>
     </div>
 
     <!-- Controls Panel -->
@@ -1409,6 +1423,33 @@
         worstTime: "O(n log n)",
         space: "O(n)",
         description: "Divide-and-conquer algorithm. Recursively splits array into halves until singletons remain, then merges sorted subarrays by repeatedly comparing front elements."
+      },
+      heap: {
+        name: "Heap Sort",
+        stable: false,
+        bestTime: "Ω(n log n)",
+        avgTime: "Θ(n log n)",
+        worstTime: "O(n log n)",
+        space: "O(1)",
+        description: "Builds a Max Heap tree structure from the array, then repeatedly extracts the maximum root element to the end and sifts down the new root to maintain heap properties."
+      },
+      shell: {
+        name: "Shell Sort",
+        stable: false,
+        bestTime: "Ω(n log n)",
+        avgTime: "Θ(n log² n)",
+        worstTime: "O(n²)",
+        space: "O(1)",
+        description: "An optimization of Insertion Sort that allows distant elements to swap early using diminishing gap intervals (h = n/2, n/4... 1), drastically reducing total movements."
+      },
+      cocktail: {
+        name: "Cocktail Shaker Sort",
+        stable: true,
+        bestTime: "Ω(n)",
+        avgTime: "Θ(n²)",
+        worstTime: "O(n²)",
+        space: "O(1)",
+        description: "A bidirectional variation of Bubble Sort. Sweeps alternately from left-to-right (bubbling the largest) and right-to-left (bubbling the smallest), solving the turtle problem."
       }
     };
 
@@ -1496,9 +1537,26 @@
     let startTime = null;
     let elapsedMilliseconds = 0;
 
+    // Algorithms Dictionary & Sequence
+    const ALGORITHM_KEYS = [
+      'bubble',
+      'selection',
+      'insertion',
+      'quick',
+      'merge',
+      'heap',
+      'shell',
+      'cocktail'
+    ];
+    let currentAlgoIndex = 0;
+
     // DOM Elements
     const barsStage = document.getElementById('barsStage');
-    const algoTabs = document.getElementById('algoTabs');
+    const btnPrevAlgo = document.getElementById('btnPrevAlgo');
+    const btnNextAlgo = document.getElementById('btnNextAlgo');
+    const algoContentWrapper = document.getElementById('algoContentWrapper');
+    const algoComplexityChip = document.getElementById('algoComplexityChip');
+    const algoCounterBadge = document.getElementById('algoCounterBadge');
     const algoName = document.getElementById('algoName');
     const algoStability = document.getElementById('algoStability');
     const algoDescription = document.getElementById('algoDescription');
@@ -1755,7 +1813,8 @@
       btnSampleCustom.disabled = sorting;
 
       document.querySelectorAll('.preset-chips button').forEach(b => b.disabled = sorting);
-      document.querySelectorAll('.algo-btn').forEach(b => b.disabled = sorting);
+      if (btnPrevAlgo) btnPrevAlgo.disabled = sorting;
+      if (btnNextAlgo) btnNextAlgo.disabled = sorting;
 
       if (sorting) {
         btnStart.disabled = true;
@@ -1790,6 +1849,9 @@
       const info = ALGORITHM_INFO[algoKey];
       if (!info) return;
 
+      currentAlgoIndex = ALGORITHM_KEYS.indexOf(algoKey);
+      if (currentAlgoIndex === -1) currentAlgoIndex = 0;
+
       algoName.textContent = info.name;
       algoStability.textContent = info.stable ? "Stable" : "Unstable";
       algoStability.className = `stability-tag ${info.stable ? 'stability-stable' : 'stability-unstable'}`;
@@ -1799,9 +1861,12 @@
       compWorst.textContent = info.worstTime;
       compSpace.textContent = info.space;
 
-      document.querySelectorAll('.algo-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.algo === algoKey);
-      });
+      if (algoComplexityChip) {
+        algoComplexityChip.textContent = info.worstTime;
+      }
+      if (algoCounterBadge) {
+        algoCounterBadge.textContent = `${currentAlgoIndex + 1} / ${ALGORITHM_KEYS.length}`;
+      }
     }
 
     function generateRandomArray(size) {
@@ -2115,6 +2180,164 @@
       await ms(0, n - 1);
     }
 
+    // 6. Heap Sort
+    async function heapSort(currentRun) {
+      const n = arrayData.length;
+      const sortedSet = new Set();
+
+      async function heapify(len, i) {
+        let largest = i;
+        const left = 2 * i + 1;
+        const right = 2 * i + 2;
+
+        setStatus(`Heapifying subtree at index <strong>${i}</strong> (heap size: ${len})`, "sorting");
+        renderBars({ pivot: [i], sorted: sortedSet });
+        await asyncSleep(currentRun);
+
+        if (left < len) {
+          comparisonsCount++;
+          statComparisons.textContent = comparisonsCount;
+          playCompareSound(arrayData[left], arrayData[largest]);
+          setStatus(`Comparing Left Child <strong>A[${left}] = ${arrayData[left]}</strong> with Root <strong>A[${largest}] = ${arrayData[largest]}</strong>`, "sorting");
+          renderBars({ comparing: [left, largest], pivot: [i], sorted: sortedSet });
+          await asyncSleep(currentRun);
+
+          if (arrayData[left] > arrayData[largest]) {
+            largest = left;
+          }
+        }
+
+        if (right < len) {
+          comparisonsCount++;
+          statComparisons.textContent = comparisonsCount;
+          playCompareSound(arrayData[right], arrayData[largest]);
+          setStatus(`Comparing Right Child <strong>A[${right}] = ${arrayData[right]}</strong> with Largest <strong>A[${largest}] = ${arrayData[largest]}</strong>`, "sorting");
+          renderBars({ comparing: [right, largest], pivot: [i], sorted: sortedSet });
+          await asyncSleep(currentRun);
+
+          if (arrayData[right] > arrayData[largest]) {
+            largest = right;
+          }
+        }
+
+        if (largest !== i) {
+          await animateSwap(i, largest, currentRun, sortedSet);
+          await heapify(len, largest);
+        }
+      }
+
+      // Phase 1: Build Max Heap
+      setStatus("Building initial Max Heap structure...", "sorting");
+      for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+        await heapify(n, i);
+      }
+
+      // Phase 2: Extract elements from max heap
+      for (let i = n - 1; i > 0; i--) {
+        setStatus(`Extracting max root <strong>A[0] = ${arrayData[0]}</strong> to sorted position ${i}`, "sorting");
+        await animateSwap(0, i, currentRun, sortedSet);
+        sortedSet.add(i);
+        renderBars({ sorted: sortedSet });
+        await heapify(i, 0);
+      }
+      sortedSet.add(0);
+      renderBars({ sorted: sortedSet });
+    }
+
+    // 7. Shell Sort
+    async function shellSort(currentRun) {
+      const n = arrayData.length;
+      const sortedSet = new Set();
+
+      for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+        setStatus(`Running Shell Sort with Gap = <strong>${gap}</strong>`, "sorting");
+
+        for (let i = gap; i < n; i++) {
+          let j = i;
+          setStatus(`Examining element <strong>A[${i}] = ${arrayData[i]}</strong> with gap ${gap}`, "sorting");
+          renderBars({ pivot: [i], sorted: sortedSet });
+          await asyncSleep(currentRun);
+
+          while (j >= gap) {
+            comparisonsCount++;
+            statComparisons.textContent = comparisonsCount;
+            playCompareSound(arrayData[j - gap], arrayData[j]);
+            setStatus(`Comparing <strong>A[${j - gap}] = ${arrayData[j - gap]}</strong> &amp; <strong>A[${j}] = ${arrayData[j]}</strong> (gap: ${gap})`, "sorting");
+            renderBars({ comparing: [j - gap, j], sorted: sortedSet });
+            await asyncSleep(currentRun);
+
+            if (arrayData[j - gap] > arrayData[j]) {
+              await animateSwap(j - gap, j, currentRun, sortedSet);
+              j -= gap;
+            } else {
+              break;
+            }
+          }
+        }
+      }
+
+      for (let k = 0; k < n; k++) sortedSet.add(k);
+      renderBars({ sorted: sortedSet });
+    }
+
+    // 8. Cocktail Shaker Sort
+    async function cocktailSort(currentRun) {
+      const n = arrayData.length;
+      const sortedSet = new Set();
+      let start = 0;
+      let end = n - 1;
+      let swapped = true;
+
+      while (swapped) {
+        swapped = false;
+        // Forward sweep: Left to Right
+        setStatus(`Cocktail Forward Sweep &rarr; [${start} &rarr; ${end}]`, "sorting");
+        for (let i = start; i < end; i++) {
+          comparisonsCount++;
+          statComparisons.textContent = comparisonsCount;
+          playCompareSound(arrayData[i], arrayData[i + 1]);
+          setStatus(`Comparing <strong>A[${i}] = ${arrayData[i]}</strong> and <strong>A[${i + 1}] = ${arrayData[i + 1]}</strong>`, "sorting");
+          renderBars({ comparing: [i, i + 1], sorted: sortedSet });
+          await asyncSleep(currentRun);
+
+          if (arrayData[i] > arrayData[i + 1]) {
+            await animateSwap(i, i + 1, currentRun, sortedSet);
+            swapped = true;
+          }
+        }
+
+        sortedSet.add(end);
+        renderBars({ sorted: sortedSet });
+        end--;
+
+        if (!swapped) break;
+        swapped = false;
+
+        // Backward sweep: Right to Left
+        setStatus(`Cocktail Backward Sweep &larr; [${end} &larr; ${start}]`, "sorting");
+        for (let i = end - 1; i >= start; i--) {
+          comparisonsCount++;
+          statComparisons.textContent = comparisonsCount;
+          playCompareSound(arrayData[i], arrayData[i + 1]);
+          setStatus(`Comparing <strong>A[${i}] = ${arrayData[i]}</strong> and <strong>A[${i + 1}] = ${arrayData[i + 1]}</strong>`, "sorting");
+          renderBars({ comparing: [i, i + 1], sorted: sortedSet });
+          await asyncSleep(currentRun);
+
+          if (arrayData[i] > arrayData[i + 1]) {
+            await animateSwap(i, i + 1, currentRun, sortedSet);
+            swapped = true;
+          }
+        }
+
+        sortedSet.add(start);
+        renderBars({ sorted: sortedSet });
+        start++;
+      }
+
+      for (let k = 0; k < n; k++) sortedSet.add(k);
+      renderBars({ sorted: sortedSet });
+    }
+
     /* ============================================================
      * Orchestration
      * ============================================================ */
@@ -2140,6 +2363,9 @@
         else if (currentAlgo === 'insertion') await insertionSort(currentRun);
         else if (currentAlgo === 'quick') await quickSort(currentRun);
         else if (currentAlgo === 'merge') await mergeSort(currentRun);
+        else if (currentAlgo === 'heap') await heapSort(currentRun);
+        else if (currentAlgo === 'shell') await shellSort(currentRun);
+        else if (currentAlgo === 'cocktail') await cocktailSort(currentRun);
 
         pauseTimer();
         await playVictoryAnimation(currentRun);
@@ -2213,12 +2439,38 @@
      * Event Listeners
      * ============================================================ */
 
-    algoTabs.addEventListener('click', (e) => {
-      const btn = e.target.closest('.algo-btn');
-      if (!btn || isSorting) return;
-      currentAlgo = btn.dataset.algo;
+    // Carousel Navigation Handler with Smooth Slide Animation
+    function changeAlgorithm(direction) {
+      if (isSorting) return;
+
+      if (direction === 'next') {
+        currentAlgoIndex = (currentAlgoIndex + 1) % ALGORITHM_KEYS.length;
+      } else {
+        currentAlgoIndex = (currentAlgoIndex - 1 + ALGORITHM_KEYS.length) % ALGORITHM_KEYS.length;
+      }
+
+      currentAlgo = ALGORITHM_KEYS[currentAlgoIndex];
+
+      const wrapper = document.getElementById('algoContentWrapper');
+      const animClass = direction === 'next' ? 'slide-in-right' : 'slide-in-left';
+
+      wrapper.classList.remove('slide-in-right', 'slide-in-left');
+      void wrapper.offsetWidth; // Trigger reflow for animation restart
+
       updateAlgoInfo(currentAlgo);
+      wrapper.classList.add(animClass);
+
       setStatus(`Selected <strong>${ALGORITHM_INFO[currentAlgo].name}</strong>. Ready to sort.`);
+    }
+
+    if (btnPrevAlgo) btnPrevAlgo.addEventListener('click', () => changeAlgorithm('prev'));
+    if (btnNextAlgo) btnNextAlgo.addEventListener('click', () => changeAlgorithm('next'));
+
+    // Keyboard Arrow Keys Navigation (Left / Right)
+    window.addEventListener('keydown', (e) => {
+      if (document.activeElement === customInput) return;
+      if (e.key === 'ArrowRight') changeAlgorithm('next');
+      if (e.key === 'ArrowLeft') changeAlgorithm('prev');
     });
 
     modeRandomBtn.addEventListener('click', () => {
