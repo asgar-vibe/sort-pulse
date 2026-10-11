@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SortPulse — Interactive Sorting Algorithm Visualizer</title>
+  <meta name="description"
+    content="A clean, responsive, and interactive sorting algorithm visualizer featuring Bubble, Selection, Insertion, Quick, and Merge sort with candy-neon aesthetics and sound effects.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      /* Candy Dark Palette */
+      --bg-dark: #090d16;
+      --bg-surface: #101726;
+      --bg-surface-elevated: #162035;
+      --bg-glass: rgba(16, 23, 38, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(129, 140, 248, 0.5);
+
+      /* Typography */
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      /* Vibrant Candy Bar Colors */
+      --bar-default-from: #6366f1;
+      --bar-default-to: #a855f7;
+      --bar-default-glow: rgba(168, 85, 247, 0.4);
+
+      /* Comparing: High Voltage Neon Amber/Gold */
+      --bar-compare-from: #f59e0b;
+      --bar-compare-to: #fde047;
+      --bar-compare-glow: rgba(253, 224, 71, 0.85);
+
+      /* Swapping: Intense Radiant Candy Rose/Crimson */
+      --bar-swap-from: #e11d48;
+      --bar-swap-to: #ff2a6d;
+      --bar-swap-glow: rgba(255, 42, 109, 0.9);
+
+      /* Pivot: Electric Cyan */
+      --bar-pivot-from: #0284c7;
+      --bar-pivot-to: #38bdf8;
+      --bar-pivot-glow: rgba(56, 189, 248, 0.8);
+
+      /* Sorted: Radiant Emerald / Neon Mint */
+      --bar-sorted-from: #059669;
+      --bar-sorted-to: #34d399;
+      --bar-sorted-glow: rgba(52, 211, 153, 0.7);
+
+      /* Gradients & Shadows */
+      --brand-gradient: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(236, 72, 153, 0.14) 0%, transparent 40%),
+        radial-gradient(circle at 85% 20%, rgba(99, 102, 241, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Header */
+    header {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: var(--bg-glass);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: var(--brand-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 18px rgba(236, 72, 153, 0.45);
+    }
+
+    .brand-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: #ffffff;
+    }
+
+    .brand-text h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: var(--brand-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(139, 92, 246, 0.2);
+      color: #c084fc;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      -webkit-text-fill-color: #c084fc;
+    }
+
+    .brand-text p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .audio-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-surface-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.5rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .audio-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .audio-btn.active {
+      color: #38bdf8;
+      border-color: rgba(56, 189, 248, 0.5);
+      background: rgba(56, 189, 248, 0.12);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Algorithm Picker Tabs */
+    .algo-tabs-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      scrollbar-width: thin;
+    }
+
+    .algo-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.7rem 1.25rem;
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.25s ease;
+      position: relative;
+      outline: none;
+    }
+
+    .algo-btn:hover {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .algo-btn.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25));
+      border-color: #818cf8;
+      color: #ffffff;
+      box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
+    }
+
+    .algo-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 15%;
+      right: 15%;
+      height: 2px;
+      background: #818cf8;
+      border-radius: 999px;
+      box-shadow: 0 0 10px #818cf8;
+    }
+
+    .algo-complexity-chip {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.35);
+      color: #94a3b8;
+    }
+
+    .algo-btn.active .algo-complexity-chip {
+      background: rgba(129, 140, 248, 0.35);
+      color: #e0e7ff;
+    }
+
+    /* Algorithm Info Card */
+    .algo-info-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.15rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.25rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .algo-desc {
+      flex: 1 1 340px;
+    }
+
+    .algo-desc-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .algo-name-title {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .stability-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stability-stable {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .stability-unstable {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+
+    .algo-desc p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .algo-complexities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .complexity-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .complexity-box .label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+    }
+
+    .complexity-box .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #c7d2fe;
+    }
+
+    /* Control Panel */
+    .controls-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    /* Input Mode Segmented Toggle */
+    .input-mode-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .segmented-control {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 3px;
+      display: inline-flex;
+      gap: 3px;
+    }
+
+    .segmented-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.4rem 0.9rem;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .segmented-btn.active {
+      background: var(--bg-surface-elevated);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Input Configuration Sections */
+    .config-body {
+      width: 100%;
+    }
+
+    .config-pane {
+      display: none;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .config-pane.active {
+      display: flex;
+    }
+
+    /* Slider styling */
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-md);
+    }
+
+    .slider-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .slider-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #38bdf8;
+      min-width: 2.5rem;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: #1e293b;
+      height: 6px;
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+      width: 130px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(236, 72, 153, 0.6);
+      transition: transform 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+    }
+
+    .preset-chips {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .chip-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 0.42rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Custom Input Controls */
+    .custom-input-box {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex: 1 1 380px;
+    }
+
+    .custom-input-box input[type="text"] {
+      flex: 1;
+      background: #0b1120;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.55rem 0.9rem;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .custom-input-box input[type="text"]:focus {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 0.55rem 0.9rem;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Playback & Action Controls */
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      outline: none;
+    }
+
+    .btn-action svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      background: var(--brand-gradient);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(236, 72, 153, 0.35);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(236, 72, 153, 0.5);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .btn-warning:hover:not(:disabled) {
+      background: rgba(245, 158, 11, 0.25);
+      border-color: rgba(245, 158, 11, 0.6);
+      color: #fde047;
+    }
+
+    .btn-danger {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.35);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: rgba(244, 63, 94, 0.25);
+      border-color: rgba(244, 63, 94, 0.6);
+      color: #ff859b;
+    }
+
+    .btn-action:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* Live Telemetry / HUD Metrics */
+    .hud-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .metric-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .metric-icon-bubble {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-comparisons {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+    }
+
+    .icon-swaps {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+    }
+
+    .icon-time {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+    }
+
+    .icon-status {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+    }
+
+    .metric-icon-bubble svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .metric-info {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .metric-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    /* Step Status Log Pill */
+    .status-banner {
+      background: rgba(16, 23, 38, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-size: 0.88rem;
+    }
+
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      flex-shrink: 0;
+    }
+
+    .status-indicator.sorting {
+      background: #f59e0b;
+      box-shadow: 0 0 14px #f59e0b;
+      animation: pulse 1s infinite ease-in-out;
+    }
+
+    .status-indicator.paused {
+      background: #f43f5e;
+      box-shadow: 0 0 10px #f43f5e;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.35;
+        transform: scale(1.4);
+      }
+    }
+
+    .status-text {
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .status-text strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* Main Visualizer Stage */
+    .visualizer-wrapper {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 1.5rem 1.25rem 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      min-height: 460px;
+    }
+
+    .stage-container {
+      height: 380px;
+      min-height: 380px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: clamp(4px, 0.8vw, 14px);
+      padding: 1rem 0.75rem 0.5rem 0.75rem;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: visible;
+    }
+
+    /* Bar Column Container */
+    .bar-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 350px;
+      /* Explicit height so elements anchor perfectly at bottom */
+      flex: 1;
+      max-width: 58px;
+      min-width: 6px;
+      position: relative;
+      user-select: none;
+      /* Physics-based smooth sliding transition for physical swap */
+      transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+      will-change: transform;
+    }
+
+    /* Floating Compare Pointer/Tag */
+    .compare-pointer {
+      position: absolute;
+      top: -34px;
+      background: #f59e0b;
+      color: #000000;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.9);
+      pointer-events: none;
+      white-space: nowrap;
+      animation: bouncePointer 0.6s infinite alternate ease-in-out;
+      z-index: 25;
+    }
+
+    @keyframes bouncePointer {
+      from {
+        transform: translateY(0);
+      }
+
+      to {
+        transform: translateY(-5px);
+      }
+    }
+
+    /* Physical Bar Element */
+    .bar-element {
+      width: 100%;
+      border-radius: 8px 8px 3px 3px;
+      background: linear-gradient(180deg, var(--bar-default-to) 0%, var(--bar-default-from) 100%);
+      box-shadow: 0 0 12px var(--bar-default-glow);
+      position: relative;
+      flex-shrink: 0;
+      /* Smooth transitions for height changes and aura */
+      transition: height 0.22s cubic-bezier(0.34, 1.3, 0.64, 1), background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+      will-change: height, transform, box-shadow;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .bar-element::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 999px;
+    }
+
+    /* Visual Comparison State: Blazing Amber Neon Glow */
+    .bar-element.state-comparing {
+      background: linear-gradient(180deg, var(--bar-compare-to) 0%, var(--bar-compare-from) 100%) !important;
+      box-shadow: 0 0 25px var(--bar-compare-glow), 0 0 45px rgba(245, 158, 11, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.8) !important;
+      border: 2px solid #fde047 !important;
+      transform: translateY(-10px) scale(1.06);
+      z-index: 20;
+    }
+
+    /* Visual Swapping State: High-Intensity Pink-Crimson Punch */
+    .bar-element.state-swapping {
+      background: linear-gradient(180deg, var(--bar-swap-to) 0%, var(--bar-swap-from) 100%) !important;
+      box-shadow: 0 0 30px var(--bar-swap-glow), 0 0 55px rgba(244, 63, 94, 0.8), inset 0 0 12px rgba(255, 255, 255, 0.8) !important;
+      border: 2px solid #fda4af !important;
+      transform: translateY(-14px) scale(1.08);
+      z-index: 30;
+    }
+
+    /* Visual Pivot State: Cyan Lightning */
+    .bar-element.state-pivot {
+      background: linear-gradient(180deg, var(--bar-pivot-to) 0%, var(--bar-pivot-from) 100%) !important;
+      box-shadow: 0 0 20px var(--bar-pivot-glow), inset 0 0 8px rgba(255, 255, 255, 0.7) !important;
+      border: 2px solid #7dd3fc !important;
+      transform: translateY(-6px);
+      z-index: 15;
+    }
+
+    /* Visual Sorted State: Emerald Gemstone */
+    .bar-element.state-sorted {
+      background: linear-gradient(180deg, var(--bar-sorted-to) 0%, var(--bar-sorted-from) 100%) !important;
+      box-shadow: 0 0 16px var(--bar-sorted-glow) !important;
+      border: 1px solid rgba(52, 211, 153, 0.4) !important;
+    }
+
+    /* Bar Value Badge */
+    .bar-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #ffffff;
+      position: absolute;
+      top: -24px;
+      pointer-events: none;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+      white-space: nowrap;
+      transition: all 0.18s ease;
+      background: rgba(15, 23, 42, 0.65);
+      padding: 1px 4px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .bar-element.state-comparing .bar-value {
+      background: #fde047;
+      color: #000000;
+      font-weight: 800;
+      box-shadow: 0 0 10px rgba(253, 224, 71, 0.8);
+      border-color: #f59e0b;
+      transform: scale(1.1);
+    }
+
+    .bar-element.state-swapping .bar-value {
+      background: #ff2a6d;
+      color: #ffffff;
+      font-weight: 800;
+      box-shadow: 0 0 12px rgba(255, 42, 109, 0.9);
+      border-color: #fda4af;
+      transform: scale(1.15);
+    }
+
+    /* Bar Index */
+    .bar-index {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.66rem;
+      color: var(--text-dim);
+      margin-top: 6px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    /* Legend Bar */
+    .legend-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+      padding-top: 1.1rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    .swatch-default {
+      background: linear-gradient(135deg, var(--bar-default-to), var(--bar-default-from));
+      color: var(--bar-default-glow);
+    }
+
+    .swatch-comparing {
+      background: linear-gradient(135deg, var(--bar-compare-to), var(--bar-compare-from));
+      color: var(--bar-compare-glow);
+    }
+
+    .swatch-swapping {
+      background: linear-gradient(135deg, var(--bar-swap-to), var(--bar-swap-from));
+      color: var(--bar-swap-glow);
+    }
+
+    .swatch-pivot {
+      background: linear-gradient(135deg, var(--bar-pivot-to), var(--bar-pivot-from));
+      color: var(--bar-pivot-glow);
+    }
+
+    .swatch-sorted {
+      background: linear-gradient(135deg, var(--bar-sorted-to), var(--bar-sorted-from));
+      color: var(--bar-sorted-glow);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 1.25rem 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: auto;
+    }
+
+    /* Error Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1e1b4b;
+      border: 1px solid #f43f5e;
+      color: #fda4af;
+      padding: 0.8rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      header {
+        padding: 0.9rem 1.2rem;
+      }
+
+      main {
+        padding: 1rem;
+        gap: 1rem;
+      }
+
+      .controls-panel {
+        padding: 1rem;
+      }
+
+      .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .action-group {
+        justify-content: flex-start;
+      }
+
+      .legend-container {
+        gap: 0.9rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .brand-text h1 {
+        font-size: 1.15rem;
+      }
+
+      .brand-text p {
+        display: none;
+      }
+
+      .stage-container {
+        height: 310px;
+        min-height: 310px;
+      }
+
+      .bar-column {
+        height: 290px;
+      }
+
+      .bar-value {
+        font-size: 0.62rem;
+        top: -20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Ambient Navigation -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 19h4V5H4v14zm6 0h4V9h-4v10zm6 0h4v-7h-4v7z" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>Sort Pulse <span class="brand-badge">ASGAR</span></h1>
+        <p>Interactive Algorithm Visualizer & Studio</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="audioToggleBtn" class="audio-btn active" title="Toggle Synthesizer Sound">
+        <svg id="audioIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+        </svg>
+        <span id="audioLabel">Sound ON</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main>
+    <!-- Algorithm Selection Tabs -->
+    <div class="algo-tabs-container" id="algoTabs">
+      <button class="algo-btn active" data-algo="bubble">
+        <span>Bubble Sort</span>
+        <span class="algo-complexity-chip">O(n²)</span>
+      </button>
+      <button class="algo-btn" data-algo="selection">
+        <span>Selection Sort</span>
+        <span class="algo-complexity-chip">O(n²)</span>
+      </button>
+      <button class="algo-btn" data-algo="insertion">
+        <span>Insertion Sort</span>
+        <span class="algo-complexity-chip">O(n²)</span>
+      </button>
+      <button class="algo-btn" data-algo="quick">
+        <span>Quick Sort</span>
+        <span class="algo-complexity-chip">O(n log n)</span>
+      </button>
+      <button class="algo-btn" data-algo="merge">
+        <span>Merge Sort</span>
+        <span class="algo-complexity-chip">O(n log n)</span>
+      </button>
+    </div>
+
+    <!-- Algorithm Information Card -->
+    <div class="algo-info-card">
+      <div class="algo-desc">
+        <div class="algo-desc-header">
+          <h2 class="algo-name-title" id="algoName">Bubble Sort</h2>
+          <span class="stability-tag stability-stable" id="algoStability">Stable</span>
+        </div>
+        <p id="algoDescription">
+          Repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order.
+          Larger elements bubble up to the end of the array.
+        </p>
+      </div>
+      <div class="algo-complexities">
+        <div class="complexity-box">
+          <span class="label">Best Time</span>
+          <span class="value" id="compBest">Ω(n)</span>
+        </div>
+        <div class="complexity-box">
+          <span class="label">Average Time</span>
+          <span class="value" id="compAvg">Θ(n²)</span>
+        </div>
+        <div class="complexity-box">
+          <span class="label">Worst Time</span>
+          <span class="value" id="compWorst">O(n²)</span>
+        </div>
+        <div class="complexity-box">
+          <span class="label">Space</span>
+          <span class="value" id="compSpace">O(1)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+      <!-- Input Mode Toggle and Array Configuration -->
+      <div class="controls-row">
+        <div class="input-mode-group">
+          <span class="slider-label">Input Mode:</span>
+          <div class="segmented-control">
+            <button class="segmented-btn active" id="modeRandomBtn">Random</button>
+            <button class="segmented-btn" id="modeCustomBtn">Custom Input</button>
+          </div>
+        </div>
+
+        <div class="config-body">
+          <!-- Random Generation Mode Controls -->
+          <div class="config-pane active" id="randomConfigPane">
+            <div class="slider-container">
+              <span class="slider-label">Size:</span>
+              <input type="range" id="sizeSlider" min="5" max="50" value="20" step="1">
+              <span class="slider-val" id="sizeVal">20</span>
+            </div>
+            <button class="btn-secondary" id="btnGenRandom">Generate New</button>
+            <div class="preset-chips">
+              <button class="chip-btn" data-preset="random">Random</button>
+              <button class="chip-btn" data-preset="nearly">Nearly Sorted</button>
+              <button class="chip-btn" data-preset="reversed">Reversed</button>
+              <button class="chip-btn" data-preset="few">Few Unique</button>
+            </div>
+          </div>
+
+          <!-- Custom Input Mode Controls -->
+          <div class="config-pane" id="customConfigPane">
+            <div class="custom-input-box">
+              <input type="text" id="customInput" placeholder="e.g. 45, 12, 89, 3, 27, 64, 19, 72"
+                value="45, 12, 89, 3, 27, 64, 19, 72, 38, 55">
+              <button class="btn-secondary" id="btnApplyCustom">Apply Array</button>
+              <button class="chip-btn" id="btnSampleCustom">Sample Presets</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Playback Actions & Real-Time Speed Control (Default Speed = 1x) -->
+      <div class="controls-row" style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <div class="action-group">
+          <!-- Start / Resume Button -->
+          <button class="btn-action btn-primary" id="btnStart">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <span id="startBtnLabel">Start Sort</span>
+          </button>
+
+          <!-- Pause / Resume Button -->
+          <button class="btn-action btn-warning" id="btnPause" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor" id="pauseBtnIcon">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+            <span id="pauseBtnLabel">Pause</span>
+          </button>
+
+          <!-- Step Forward Button -->
+          <button class="btn-action btn-secondary" id="btnStep" disabled
+            title="Step forward 1 operation (while paused)">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+            </svg>
+            <span>Step</span>
+          </button>
+
+          <!-- Reset Button -->
+          <button class="btn-action btn-danger" id="btnReset">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+            </svg>
+            <span>Reset</span>
+          </button>
+        </div>
+
+        <!-- Real-Time Dynamic Speed Slider: Default 1x -->
+        <div class="slider-container">
+          <span class="slider-label">Speed:</span>
+          <input type="range" id="speedSlider" min="1" max="10" value="1" step="1">
+          <span class="slider-val" id="speedVal">1x</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HUD Telemetry Metrics -->
+    <div class="hud-metrics">
+      <div class="metric-card">
+        <div class="metric-icon-bubble icon-comparisons">
+          <svg viewBox="0 0 24 24">
+            <path d="M9.01 14H2v2h7.01v3L13 15l-3.99-4v3zm5.98-1v-3H22V8h-7.01V5L11 9l3.99 4z" />
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-label">Comparisons</span>
+          <span class="metric-value" id="statComparisons">0</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-bubble icon-swaps">
+          <svg viewBox="0 0 24 24">
+            <path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z" />
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-label">Swaps / Moves</span>
+          <span class="metric-value" id="statSwaps">0</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-bubble icon-time">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-label">Elapsed Time</span>
+          <span class="metric-value" id="statTime">0.00s</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon-bubble icon-status">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+        </div>
+        <div class="metric-info">
+          <span class="metric-label">Array Size</span>
+          <span class="metric-value" id="statSize">20</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Execution Status Bar -->
+    <div class="status-banner">
+      <div class="status-indicator" id="statusDot"></div>
+      <div class="status-text" id="statusMessage">Ready to sort. Click <strong>Start Sort</strong> to begin
+        visualization.</div>
+    </div>
+
+    <!-- Main Visualizer Canvas & Bars -->
+    <div class="visualizer-wrapper">
+      <div class="stage-container" id="barsStage">
+        <!-- Bars dynamically rendered by JavaScript with explicit pixel heights -->
+      </div>
+
+      <!-- Color Legend -->
+      <div class="legend-container">
+        <div class="legend-item">
+          <div class="legend-swatch swatch-default"></div>
+          <span>Default</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch swatch-comparing"></div>
+          <span>Comparing (Neon Gold Glow)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch swatch-swapping"></div>
+          <span>Swapping (Rose Punch)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch swatch-pivot"></div>
+          <span>Pivot / Key Element</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-swatch swatch-sorted"></div>
+          <span>Sorted Position</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notification Toast -->
+  <div class="toast" id="toastMessage"></div>
+
+  <!-- Footer -->
+  <footer>
+    SortPulse &bull; High-Performance Sorting Simulation &bull; Audio Pitch Synthesizer
+  </footer>
+
+  <script>
+    /**
+     * SortPulse — Interactive Algorithm Visualizer
+     * Explicit Pixel Heights Proportional to Values
+     * High-Visibility Comparison Highlights
+     * Smooth Physical Crossover Swap Animation
+     * Default Speed = 1x
+     */
+
+    const ALGORITHM_INFO = {
+      bubble: {
+        name: "Bubble Sort",
+        stable: true,
+        bestTime: "Ω(n)",
+        avgTime: "Θ(n²)",
+        worstTime: "O(n²)",
+        space: "O(1)",
+        description: "Repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order. Larger elements bubble up to the end of the array."
+      },
+      selection: {
+        name: "Selection Sort",
+        stable: false,
+        bestTime: "Ω(n²)",
+        avgTime: "Θ(n²)",
+        worstTime: "O(n²)",
+        space: "O(1)",
+        description: "Divides array into sorted and unsorted parts. Repeatedly finds the minimum element from the unsorted section and swaps it into its final sorted position."
+      },
+      insertion: {
+        name: "Insertion Sort",
+        stable: true,
+        bestTime: "Ω(n)",
+        avgTime: "Θ(n²)",
+        worstTime: "O(n²)",
+        space: "O(1)",
+        description: "Builds the sorted array one element at a time by picking the current element and inserting it into its correct position within the already sorted prefix."
+      },
+      quick: {
+        name: "Quick Sort",
+        stable: false,
+        bestTime: "Ω(n log n)",
+        avgTime: "Θ(n log n)",
+        worstTime: "O(n²)",
+        space: "O(log n)",
+        description: "Divide-and-conquer algorithm. Selects a pivot element and partitions the array around the pivot so smaller elements go left and larger ones go right, then recurses."
+      },
+      merge: {
+        name: "Merge Sort",
+        stable: true,
+        bestTime: "Ω(n log n)",
+        avgTime: "Θ(n log n)",
+        worstTime: "O(n log n)",
+        space: "O(n)",
+        description: "Divide-and-conquer algorithm. Recursively splits array into halves until singletons remain, then merges sorted subarrays by repeatedly comparing front elements."
+      }
+    };
+
+    // Synthesizer Audio Controller
+    class AudioController {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      initContext() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playTone(val, minVal, maxVal, duration = 0.06, type = 'sine') {
+        if (!this.enabled) return;
+        this.initContext();
+        if (!this.ctx) return;
+
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          const range = Math.max(1, maxVal - minVal);
+          const ratio = Math.max(0, Math.min(1, (val - minVal) / range));
+          const freq = 220 + ratio * 680;
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) { }
+      }
+
+      playChime(idx, total) {
+        if (!this.enabled) return;
+        this.initContext();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const freq = 320 + (idx / total) * 700;
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.08);
+        } catch (e) { }
+      }
+    }
+
+    // Global State
+    const sound = new AudioController();
+    let currentAlgo = 'bubble';
+    let arrayData = [];
+    let initialArrayBackup = [];
+    let isSorting = false;
+    let isPaused = false;
+    let pauseResolver = null;
+    let stepRequested = false;
+    let runId = 0;
+
+    let comparisonsCount = 0;
+    let swapsCount = 0;
+    let timerInterval = null;
+    let startTime = null;
+    let elapsedMilliseconds = 0;
+
+    // DOM Elements
+    const barsStage = document.getElementById('barsStage');
+    const algoTabs = document.getElementById('algoTabs');
+    const algoName = document.getElementById('algoName');
+    const algoStability = document.getElementById('algoStability');
+    const algoDescription = document.getElementById('algoDescription');
+    const compBest = document.getElementById('compBest');
+    const compAvg = document.getElementById('compAvg');
+    const compWorst = document.getElementById('compWorst');
+    const compSpace = document.getElementById('compSpace');
+
+    const modeRandomBtn = document.getElementById('modeRandomBtn');
+    const modeCustomBtn = document.getElementById('modeCustomBtn');
+    const randomConfigPane = document.getElementById('randomConfigPane');
+    const customConfigPane = document.getElementById('customConfigPane');
+
+    const sizeSlider = document.getElementById('sizeSlider');
+    const sizeVal = document.getElementById('sizeVal');
+    const btnGenRandom = document.getElementById('btnGenRandom');
+    const customInput = document.getElementById('customInput');
+    const btnApplyCustom = document.getElementById('btnApplyCustom');
+    const btnSampleCustom = document.getElementById('btnSampleCustom');
+
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+
+    const btnStart = document.getElementById('btnStart');
+    const startBtnLabel = document.getElementById('startBtnLabel');
+    const btnPause = document.getElementById('btnPause');
+    const pauseBtnLabel = document.getElementById('pauseBtnLabel');
+    const btnStep = document.getElementById('btnStep');
+    const btnReset = document.getElementById('btnReset');
+
+    const statComparisons = document.getElementById('statComparisons');
+    const statSwaps = document.getElementById('statSwaps');
+    const statTime = document.getElementById('statTime');
+    const statSize = document.getElementById('statSize');
+    const statusDot = document.getElementById('statusDot');
+    const statusMessage = document.getElementById('statusMessage');
+
+    const audioToggleBtn = document.getElementById('audioToggleBtn');
+    const audioLabel = document.getElementById('audioLabel');
+    const toast = document.getElementById('toastMessage');
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
+    // Dynamic delay based on speed slider (1x = ~650ms, 10x = ~10ms)
+    function getDelay() {
+      const speed = parseInt(speedSlider.value, 10);
+      const delays = [0, 650, 440, 280, 180, 110, 70, 42, 24, 14, 5];
+      return delays[speed] || 250;
+    }
+
+    // Dynamic sleep supporting pause, step, speed changes, and instant cancellation
+    async function asyncSleep(currentRun) {
+      if (currentRun !== runId) throw new Error('CANCELLED');
+
+      while (isPaused && !stepRequested) {
+        if (currentRun !== runId) throw new Error('CANCELLED');
+        await new Promise(resolve => { pauseResolver = resolve; });
+      }
+
+      if (currentRun !== runId) throw new Error('CANCELLED');
+
+      if (stepRequested) {
+        stepRequested = false;
+        return;
+      }
+
+      const delay = getDelay();
+      if (delay > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
+      if (currentRun !== runId) throw new Error('CANCELLED');
+    }
+
+    function startTimer() {
+      startTime = Date.now() - elapsedMilliseconds;
+      timerInterval = setInterval(() => {
+        elapsedMilliseconds = Date.now() - startTime;
+        statTime.textContent = (elapsedMilliseconds / 1000).toFixed(2) + 's';
+      }, 50);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      elapsedMilliseconds = 0;
+      statTime.textContent = '0.00s';
+    }
+
+    function setStatus(text, state = 'ready') {
+      statusMessage.innerHTML = text;
+      statusDot.className = 'status-indicator';
+      if (state === 'sorting') statusDot.classList.add('sorting');
+      if (state === 'paused') statusDot.classList.add('paused');
+    }
+
+    /**
+     * Render Bars with EXPLICIT PIXEL HEIGHTS proportional to value
+     * Ensures every bar has a height strictly matching its number!
+     */
+    function renderBars(highlights = {}) {
+      barsStage.innerHTML = '';
+      if (!arrayData.length) return;
+
+      const maxVal = Math.max(...arrayData, 1);
+      const count = arrayData.length;
+
+      // Available height for bars inside the stage
+      const maxBarHeight = 285; // pixels
+      const minBarHeight = 22;  // pixels
+
+      const stageWidth = barsStage.clientWidth || 900;
+      const barWidth = stageWidth / count;
+      const showValues = barWidth > 18 && count <= 36;
+      const showIndices = barWidth > 22 && count <= 30;
+
+      const comparingSet = new Set(highlights.comparing || []);
+      const swappingSet = new Set(highlights.swapping || []);
+      const pivotSet = new Set(highlights.pivot || []);
+      const sortedSet = highlights.sorted instanceof Set ? highlights.sorted : new Set(highlights.sorted || []);
+
+      arrayData.forEach((val, idx) => {
+        const col = document.createElement('div');
+        col.className = 'bar-column';
+        col.id = `bar-col-${idx}`;
+
+        // Top pointer indicator if currently being compared
+        if (comparingSet.has(idx)) {
+          const pointer = document.createElement('div');
+          pointer.className = 'compare-pointer';
+          pointer.textContent = 'VS';
+          col.appendChild(pointer);
+        }
+
+        const bar = document.createElement('div');
+        bar.className = 'bar-element';
+        bar.id = `bar-${idx}`;
+
+        // Calculate explicit pixel height proportional to value
+        const calculatedHeight = Math.max(minBarHeight, Math.round((val / maxVal) * maxBarHeight));
+        bar.style.height = `${calculatedHeight}px`;
+
+        // Apply state styles
+        if (swappingSet.has(idx)) {
+          bar.classList.add('state-swapping');
+        } else if (comparingSet.has(idx)) {
+          bar.classList.add('state-comparing');
+        } else if (pivotSet.has(idx)) {
+          bar.classList.add('state-pivot');
+        } else if (sortedSet.has(idx)) {
+          bar.classList.add('state-sorted');
+        }
+
+        // Value pill
+        if (showValues) {
+          const valEl = document.createElement('div');
+          valEl.className = 'bar-value';
+          valEl.textContent = val;
+          bar.appendChild(valEl);
+        }
+
+        col.appendChild(bar);
+
+        // Index label
+        if (showIndices) {
+          const idxEl = document.createElement('div');
+          idxEl.className = 'bar-index';
+          idxEl.textContent = idx;
+          col.appendChild(idxEl);
+        }
+
+        barsStage.appendChild(col);
+      });
+
+      statSize.textContent = arrayData.length;
+    }
+
+    /**
+     * Physical Crossover Swap Animation
+     * Smoothly slides columns horizontally across each other, then updates state!
+     */
+    async function animateSwap(i, j, currentRun, currentSortedSet = new Set()) {
+      if (i === j) return;
+      if (currentRun !== runId) throw new Error('CANCELLED');
+
+      swapsCount++;
+      statSwaps.textContent = swapsCount;
+      playSwapSound(arrayData[i], arrayData[j]);
+      setStatus(`Swapping <strong>A[${i}] (${arrayData[i]})</strong> &harr; <strong>A[${j}] (${arrayData[j]})</strong>`, "sorting");
+
+      const colI = document.getElementById(`bar-col-${i}`);
+      const colJ = document.getElementById(`bar-col-${j}`);
+
+      if (colI && colJ) {
+        const barI = colI.querySelector('.bar-element');
+        const barJ = colJ.querySelector('.bar-element');
+        if (barI) barI.classList.add('state-swapping');
+        if (barJ) barJ.classList.add('state-swapping');
+
+        // Measure distance between elements
+        const rectI = colI.getBoundingClientRect();
+        const rectJ = colJ.getBoundingClientRect();
+        const deltaX = rectJ.left - rectI.left;
+
+        // Slide duration scales nicely with current speed slider
+        const animDuration = Math.min(420, Math.max(90, Math.round(getDelay() * 0.65)));
+        colI.style.transition = `transform ${animDuration}ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
+        colJ.style.transition = `transform ${animDuration}ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
+        colI.style.transform = `translateX(${deltaX}px) translateY(-14px)`;
+        colJ.style.transform = `translateX(${-deltaX}px) translateY(-14px)`;
+        colI.style.zIndex = '30';
+        colJ.style.zIndex = '30';
+
+        // Wait for slide animation
+        await new Promise(r => setTimeout(r, animDuration));
+        if (currentRun !== runId) throw new Error('CANCELLED');
+
+        // Swap internal data
+        [arrayData[i], arrayData[j]] = [arrayData[j], arrayData[i]];
+
+        // Reset transforms
+        colI.style.transition = 'none';
+        colJ.style.transition = 'none';
+        colI.style.transform = '';
+        colJ.style.transform = '';
+        colI.style.zIndex = '';
+        colJ.style.zIndex = '';
+
+        // Re-render with new heights and retain swapping aura briefly
+        renderBars({ swapping: [i, j], sorted: currentSortedSet });
+        await asyncSleep(currentRun);
+      } else {
+        [arrayData[i], arrayData[j]] = [arrayData[j], arrayData[i]];
+        renderBars({ swapping: [i, j], sorted: currentSortedSet });
+        await asyncSleep(currentRun);
+      }
+    }
+
+    function setControlsSortingState(sorting) {
+      isSorting = sorting;
+      modeRandomBtn.disabled = sorting;
+      modeCustomBtn.disabled = sorting;
+      sizeSlider.disabled = sorting;
+      btnGenRandom.disabled = sorting;
+      customInput.disabled = sorting;
+      btnApplyCustom.disabled = sorting;
+      btnSampleCustom.disabled = sorting;
+
+      document.querySelectorAll('.preset-chips button').forEach(b => b.disabled = sorting);
+      document.querySelectorAll('.algo-btn').forEach(b => b.disabled = sorting);
+
+      if (sorting) {
+        btnStart.disabled = true;
+        btnPause.disabled = false;
+        btnStep.disabled = !isPaused;
+      } else {
+        btnStart.disabled = false;
+        btnPause.disabled = true;
+        btnStep.disabled = true;
+        startBtnLabel.textContent = "Start Sort";
+      }
+    }
+
+    function getMinMax() {
+      return {
+        min: Math.min(...arrayData),
+        max: Math.max(...arrayData)
+      };
+    }
+
+    function playCompareSound(val1, val2) {
+      const { min, max } = getMinMax();
+      sound.playTone(val1, min, max, 0.05, 'sine');
+    }
+
+    function playSwapSound(val1, val2) {
+      const { min, max } = getMinMax();
+      sound.playTone(val2, min, max, 0.08, 'triangle');
+    }
+
+    function updateAlgoInfo(algoKey) {
+      const info = ALGORITHM_INFO[algoKey];
+      if (!info) return;
+
+      algoName.textContent = info.name;
+      algoStability.textContent = info.stable ? "Stable" : "Unstable";
+      algoStability.className = `stability-tag ${info.stable ? 'stability-stable' : 'stability-unstable'}`;
+      algoDescription.textContent = info.description;
+      compBest.textContent = info.bestTime;
+      compAvg.textContent = info.avgTime;
+      compWorst.textContent = info.worstTime;
+      compSpace.textContent = info.space;
+
+      document.querySelectorAll('.algo-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.algo === algoKey);
+      });
+    }
+
+    function generateRandomArray(size) {
+      const arr = [];
+      for (let i = 0; i < size; i++) {
+        arr.push(Math.floor(Math.random() * 94) + 6);
+      }
+      return arr;
+    }
+
+    function generateNearlySortedArray(size) {
+      const arr = [];
+      const step = 90 / size;
+      for (let i = 0; i < size; i++) {
+        arr.push(Math.round(8 + i * step));
+      }
+      const swaps = Math.max(1, Math.floor(size / 6));
+      for (let s = 0; s < swaps; s++) {
+        const i1 = Math.floor(Math.random() * size);
+        const i2 = Math.min(size - 1, i1 + Math.floor(Math.random() * 3) + 1);
+        [arr[i1], arr[i2]] = [arr[i2], arr[i1]];
+      }
+      return arr;
+    }
+
+    function generateReversedArray(size) {
+      const arr = [];
+      const step = 90 / size;
+      for (let i = 0; i < size; i++) {
+        arr.push(Math.round(98 - i * step));
+      }
+      return arr;
+    }
+
+    function generateFewUniqueArray(size) {
+      const uniqueVals = [14, 38, 64, 92];
+      const arr = [];
+      for (let i = 0; i < size; i++) {
+        arr.push(uniqueVals[Math.floor(Math.random() * uniqueVals.length)]);
+      }
+      return arr;
+    }
+
+    function setArray(newArr) {
+      arrayData = [...newArr];
+      initialArrayBackup = [...newArr];
+      comparisonsCount = 0;
+      swapsCount = 0;
+      statComparisons.textContent = '0';
+      statSwaps.textContent = '0';
+      resetTimer();
+      renderBars();
+      setStatus(`Array ready with <strong>${arrayData.length}</strong> elements.`);
+    }
+
+    async function playVictoryAnimation(currentRun) {
+      setStatus("Sorting complete! All elements in verified order.", "ready");
+      const n = arrayData.length;
+      for (let i = 0; i < n; i++) {
+        if (currentRun !== runId) return;
+        sound.playChime(i, n);
+        renderBars({ sorted: Array.from({ length: i + 1 }, (_, k) => k) });
+        await new Promise(r => setTimeout(r, Math.max(15, 300 / n)));
+      }
+      renderBars({ sorted: Array.from({ length: n }, (_, k) => k) });
+    }
+
+    /* ============================================================
+     * Algorithms with Clear Highlights & Smooth Swap Animations
+     * ============================================================ */
+
+    // 1. Bubble Sort
+    async function bubbleSort(currentRun) {
+      const n = arrayData.length;
+      const sortedSet = new Set();
+
+      for (let i = 0; i < n; i++) {
+        let swappedInPass = false;
+        for (let j = 0; j < n - i - 1; j++) {
+          comparisonsCount++;
+          statComparisons.textContent = comparisonsCount;
+          playCompareSound(arrayData[j], arrayData[j + 1]);
+
+          // Clear High-Visibility Comparison Highlight
+          setStatus(`Comparing <strong>A[${j}] = ${arrayData[j]}</strong> and <strong>A[${j + 1}] = ${arrayData[j + 1]}</strong>`, "sorting");
+          renderBars({ comparing: [j, j + 1], sorted: sortedSet });
+          await asyncSleep(currentRun);
+
+          if (arrayData[j] > arrayData[j + 1]) {
+            swappedInPass = true;
+            // Physical crossover slide swap animation
+            await animateSwap(j, j + 1, currentRun, sortedSet);
+          }
+        }
+        sortedSet.add(n - i - 1);
+        renderBars({ sorted: sortedSet });
+        if (!swappedInPass) {
+          for (let k = 0; k < n - i - 1; k++) sortedSet.add(k);
+          break;
+        }
+      }
+    }
+
+    // 2. Selection Sort
+    async function selectionSort(currentRun) {
+      const n = arrayData.length;
+      const sortedSet = new Set();
+
+      for (let i = 0; i < n; i++) {
+        let minIdx = i;
+        setStatus(`Looking for minimum element in unsorted range starting at <strong>A[${i}] = ${arrayData[i]}</strong>`, "sorting");
+        renderBars({ pivot: [minIdx], sorted: sortedSet });
+        await asyncSleep(currentRun);
+
+        for (let j = i + 1; j < n; j++) {
+          comparisonsCount++;
+          statComparisons.textContent = comparisonsCount;
+          playCompareSound(arrayData[j], arrayData[minIdx]);
+
+          // Clear High-Visibility Comparison Highlight
+          setStatus(`Comparing <strong>A[${j}] = ${arrayData[j]}</strong> against current min <strong>A[${minIdx}] = ${arrayData[minIdx]}</strong>`, "sorting");
+          renderBars({ comparing: [j], pivot: [minIdx], sorted: sortedSet });
+          await asyncSleep(currentRun);
+
+          if (arrayData[j] < arrayData[minIdx]) {
+            minIdx = j;
+            setStatus(`Found new minimum element: <strong>A[${minIdx}] = ${arrayData[minIdx]}</strong>`, "sorting");
+            renderBars({ pivot: [minIdx], sorted: sortedSet });
+            await asyncSleep(currentRun);
+          }
+        }
+
+        if (minIdx !== i) {
+          // Physical crossover slide swap animation
+          await animateSwap(i, minIdx, currentRun, sortedSet);
+        }
+
+        sortedSet.add(i);
+        renderBars({ sorted: sortedSet });
+      }
+    }
+
+    // 3. Insertion Sort
+    async function insertionSort(currentRun) {
+      const n = arrayData.length;
+      const sortedSet = new Set([0]);
+
+      for (let i = 1; i < n; i++) {
+        setStatus(`Picked key <strong>A[${i}] = ${arrayData[i]}</strong> for insertion.`, "sorting");
+        renderBars({ pivot: [i], sorted: sortedSet });
+        await asyncSleep(currentRun);
+
+        let j = i;
+        while (j > 0) {
+          comparisonsCount++;
+          statComparisons.textContent = comparisonsCount;
+          playCompareSound(arrayData[j - 1], arrayData[j]);
+
+          // Clear High-Visibility Comparison Highlight
+          setStatus(`Comparing <strong>A[${j - 1}] = ${arrayData[j - 1]}</strong> with key <strong>A[${j}] = ${arrayData[j]}</strong>`, "sorting");
+          renderBars({ comparing: [j - 1, j], sorted: sortedSet });
+          await asyncSleep(currentRun);
+
+          if (arrayData[j - 1] > arrayData[j]) {
+            // Animate consecutive adjacent swaps backwards
+            await animateSwap(j - 1, j, currentRun, sortedSet);
+            j--;
+          } else {
+            break;
+          }
+        }
+
+        sortedSet.add(i);
+        renderBars({ sorted: sortedSet });
+      }
+    }
+
+    // 4. Quick Sort
+    async function quickSort(currentRun) {
+      const sortedSet = new Set();
+
+      async function partition(low, high) {
+        const pivotVal = arrayData[high];
+        let i = low - 1;
+
+        setStatus(`Selected pivot <strong>A[${high}] = ${pivotVal}</strong> for range [${low}...${high}]`, "sorting");
+        renderBars({ pivot: [high], sorted: sortedSet });
+        await asyncSleep(currentRun);
+
+        for (let j = low; j < high; j++) {
+          comparisonsCount++;
+          statComparisons.textContent = comparisonsCount;
+          playCompareSound(arrayData[j], pivotVal);
+
+          // Clear High-Visibility Comparison Highlight
+          setStatus(`Comparing <strong>A[${j}] = ${arrayData[j]}</strong> with pivot <strong>${pivotVal}</strong>`, "sorting");
+          renderBars({ comparing: [j], pivot: [high], sorted: sortedSet });
+          await asyncSleep(currentRun);
+
+          if (arrayData[j] < pivotVal) {
+            i++;
+            if (i !== j) {
+              await animateSwap(i, j, currentRun, sortedSet);
+            }
+          }
+        }
+
+        // Place pivot in correct position with physical swap animation
+        await animateSwap(i + 1, high, currentRun, sortedSet);
+        const pivotIdx = i + 1;
+        sortedSet.add(pivotIdx);
+        setStatus(`Pivot placed at final position index ${pivotIdx}`, "sorting");
+        renderBars({ sorted: sortedSet });
+        await asyncSleep(currentRun);
+
+        return pivotIdx;
+      }
+
+      async function qs(low, high) {
+        if (low <= high) {
+          if (low === high) {
+            sortedSet.add(low);
+            renderBars({ sorted: sortedSet });
+            return;
+          }
+          const pi = await partition(low, high);
+          await qs(low, pi - 1);
+          await qs(pi + 1, high);
+        }
+      }
+
+      await qs(0, arrayData.length - 1);
+    }
+
+    // 5. Merge Sort
+    async function mergeSort(currentRun) {
+      const sortedSet = new Set();
+      const n = arrayData.length;
+
+      async function merge(start, mid, end) {
+        const leftArr = arrayData.slice(start, mid + 1);
+        const rightArr = arrayData.slice(mid + 1, end + 1);
+
+        let i = 0, j = 0, k = start;
+
+        setStatus(`Merging subarrays [${start}...${mid}] and [${mid + 1}...${end}]`, "sorting");
+
+        while (i < leftArr.length && j < rightArr.length) {
+          comparisonsCount++;
+          statComparisons.textContent = comparisonsCount;
+          playCompareSound(leftArr[i], rightArr[j]);
+
+          // Clear High-Visibility Comparison Highlight
+          setStatus(`Comparing Left (${leftArr[i]}) and Right (${rightArr[j]})`, "sorting");
+          renderBars({ comparing: [start + i, mid + 1 + j], sorted: sortedSet });
+          await asyncSleep(currentRun);
+
+          if (leftArr[i] <= rightArr[j]) {
+            arrayData[k] = leftArr[i];
+            i++;
+          } else {
+            arrayData[k] = rightArr[j];
+            j++;
+          }
+
+          swapsCount++;
+          statSwaps.textContent = swapsCount;
+          playSwapSound(arrayData[k], arrayData[k]);
+          setStatus(`Placing <strong>${arrayData[k]}</strong> at index <strong>${k}</strong>`, "sorting");
+          renderBars({ swapping: [k], sorted: sortedSet });
+          await asyncSleep(currentRun);
+          k++;
+        }
+
+        while (i < leftArr.length) {
+          arrayData[k] = leftArr[i];
+          swapsCount++;
+          statSwaps.textContent = swapsCount;
+          playSwapSound(arrayData[k], arrayData[k]);
+          renderBars({ swapping: [k], sorted: sortedSet });
+          await asyncSleep(currentRun);
+          i++;
+          k++;
+        }
+
+        while (j < rightArr.length) {
+          arrayData[k] = rightArr[j];
+          swapsCount++;
+          statSwaps.textContent = swapsCount;
+          playSwapSound(arrayData[k], arrayData[k]);
+          renderBars({ swapping: [k], sorted: sortedSet });
+          await asyncSleep(currentRun);
+          j++;
+          k++;
+        }
+
+        if (start === 0 && end === n - 1) {
+          for (let m = 0; m < n; m++) sortedSet.add(m);
+        }
+      }
+
+      async function ms(start, end) {
+        if (start < end) {
+          const mid = Math.floor((start + end) / 2);
+          await ms(start, mid);
+          await ms(mid + 1, end);
+          await merge(start, mid, end);
+        }
+      }
+
+      await ms(0, n - 1);
+    }
+
+    /* ============================================================
+     * Orchestration
+     * ============================================================ */
+
+    async function executeSort() {
+      if (isSorting) return;
+      sound.initContext();
+
+      runId++;
+      const currentRun = runId;
+
+      isPaused = false;
+      pauseResolver = null;
+      stepRequested = false;
+
+      setControlsSortingState(true);
+      startTimer();
+      setStatus(`Executing <strong>${ALGORITHM_INFO[currentAlgo].name}</strong>...`, "sorting");
+
+      try {
+        if (currentAlgo === 'bubble') await bubbleSort(currentRun);
+        else if (currentAlgo === 'selection') await selectionSort(currentRun);
+        else if (currentAlgo === 'insertion') await insertionSort(currentRun);
+        else if (currentAlgo === 'quick') await quickSort(currentRun);
+        else if (currentAlgo === 'merge') await mergeSort(currentRun);
+
+        pauseTimer();
+        await playVictoryAnimation(currentRun);
+      } catch (err) {
+        if (err.message === 'CANCELLED') {
+          pauseTimer();
+          return;
+        }
+        console.error("Sorting error:", err);
+      } finally {
+        if (currentRun === runId) {
+          setControlsSortingState(false);
+          btnPause.disabled = true;
+          btnStep.disabled = true;
+        }
+      }
+    }
+
+    function togglePause() {
+      if (!isSorting) return;
+
+      isPaused = !isPaused;
+      if (isPaused) {
+        pauseTimer();
+        pauseBtnLabel.textContent = "Resume";
+        setStatus("Visualization paused. Press Resume or Step to continue.", "paused");
+        btnStep.disabled = false;
+      } else {
+        startTimer();
+        pauseBtnLabel.textContent = "Pause";
+        setStatus("Resuming visualization...", "sorting");
+        btnStep.disabled = true;
+        if (pauseResolver) {
+          pauseResolver();
+          pauseResolver = null;
+        }
+      }
+    }
+
+    function stepOnce() {
+      if (!isSorting || !isPaused) return;
+      stepRequested = true;
+      if (pauseResolver) {
+        pauseResolver();
+        pauseResolver = null;
+      }
+    }
+
+    function resetSimulation() {
+      runId++;
+      if (pauseResolver) {
+        pauseResolver();
+        pauseResolver = null;
+      }
+      isPaused = false;
+      stepRequested = false;
+      pauseBtnLabel.textContent = "Pause";
+      setControlsSortingState(false);
+      resetTimer();
+
+      arrayData = [...initialArrayBackup];
+      comparisonsCount = 0;
+      swapsCount = 0;
+      statComparisons.textContent = '0';
+      statSwaps.textContent = '0';
+      renderBars();
+      setStatus("Simulation reset to initial state. Ready to run.", "ready");
+    }
+
+    /* ============================================================
+     * Event Listeners
+     * ============================================================ */
+
+    algoTabs.addEventListener('click', (e) => {
+      const btn = e.target.closest('.algo-btn');
+      if (!btn || isSorting) return;
+      currentAlgo = btn.dataset.algo;
+      updateAlgoInfo(currentAlgo);
+      setStatus(`Selected <strong>${ALGORITHM_INFO[currentAlgo].name}</strong>. Ready to sort.`);
+    });
+
+    modeRandomBtn.addEventListener('click', () => {
+      if (isSorting) return;
+      modeRandomBtn.classList.add('active');
+      modeCustomBtn.classList.remove('active');
+      randomConfigPane.classList.add('active');
+      customConfigPane.classList.remove('active');
+    });
+
+    modeCustomBtn.addEventListener('click', () => {
+      if (isSorting) return;
+      modeCustomBtn.classList.add('active');
+      modeRandomBtn.classList.remove('active');
+      customConfigPane.classList.add('active');
+      randomConfigPane.classList.remove('active');
+    });
+
+    sizeSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      sizeVal.textContent = val;
+      if (!isSorting) {
+        setArray(generateRandomArray(val));
+      }
+    });
+
+    btnGenRandom.addEventListener('click', () => {
+      if (isSorting) return;
+      const size = parseInt(sizeSlider.value, 10);
+      setArray(generateRandomArray(size));
+    });
+
+    document.querySelectorAll('.preset-chips button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (isSorting) return;
+        const size = parseInt(sizeSlider.value, 10);
+        const preset = btn.dataset.preset;
+        if (preset === 'random') setArray(generateRandomArray(size));
+        else if (preset === 'nearly') setArray(generateNearlySortedArray(size));
+        else if (preset === 'reversed') setArray(generateReversedArray(size));
+        else if (preset === 'few') setArray(generateFewUniqueArray(size));
+      });
+    });
+
+    function parseCustomArray() {
+      const text = customInput.value.trim();
+      if (!text) {
+        showToast("Please enter comma-separated numbers.");
+        return;
+      }
+      const rawValues = text.split(/[\s,]+/).filter(Boolean);
+      const parsed = [];
+
+      for (const token of rawValues) {
+        const num = parseFloat(token);
+        if (isNaN(num)) {
+          showToast(`Invalid number: "${token}"`);
+          return;
+        }
+        if (num <= 0) {
+          showToast(`Numbers must be positive (> 0)`);
+          return;
+        }
+        parsed.push(Math.round(num));
+      }
+
+      if (parsed.length < 3) {
+        showToast("Please enter at least 3 numbers.");
+        return;
+      }
+
+      if (parsed.length > 55) {
+        showToast("Maximum recommended limit is 55 numbers.");
+        parsed.length = 55;
+      }
+
+      setArray(parsed);
+      showToast(`Custom array loaded (${parsed.length} items).`);
+    }
+
+    btnApplyCustom.addEventListener('click', parseCustomArray);
+    customInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') parseCustomArray();
+    });
+
+    const SAMPLE_CUSTOMS = [
+      "45, 12, 89, 3, 27, 64, 19, 72, 38, 55",
+      "99, 88, 77, 66, 55, 44, 33, 22, 11",
+      "5, 25, 10, 50, 15, 75, 20, 100, 30",
+      "12, 15, 19, 24, 28, 45, 33, 50, 62"
+    ];
+    let sampleIdx = 0;
+    btnSampleCustom.addEventListener('click', () => {
+      sampleIdx = (sampleIdx + 1) % SAMPLE_CUSTOMS.length;
+      customInput.value = SAMPLE_CUSTOMS[sampleIdx];
+      parseCustomArray();
+    });
+
+    // Real-Time Speed Slider
+    speedSlider.addEventListener('input', (e) => {
+      speedVal.textContent = `${e.target.value}x`;
+    });
+
+    btnStart.addEventListener('click', executeSort);
+    btnPause.addEventListener('click', togglePause);
+    btnStep.addEventListener('click', stepOnce);
+    btnReset.addEventListener('click', resetSimulation);
+
+    audioToggleBtn.addEventListener('click', () => {
+      sound.enabled = !sound.enabled;
+      audioToggleBtn.classList.toggle('active', sound.enabled);
+      audioLabel.textContent = sound.enabled ? "Sound ON" : "Sound OFF";
+      showToast(sound.enabled ? "Synthesizer audio enabled" : "Synthesizer muted");
+    });
+
+    window.addEventListener('resize', () => {
+      renderBars();
+    });
+
+    function init() {
+      updateAlgoInfo('bubble');
+      setArray(generateRandomArray(20));
+      speedSlider.value = "1";
+      speedVal.textContent = "1x";
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
